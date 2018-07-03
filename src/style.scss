@@ -1,0 +1,42 @@
+$box_h: 500px;
+$time: 500ms;
+.vue-swiper-outer {
+  height: $box_h;
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.vue-swiper-inner {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  left: 50%;
+  z-index: 0;
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 0 3rem .25rem #D5E9F6;
+  transition: all $time ease-in-out;
+  &.vue-swiper-active {
+    opacity: 1;
+    left: 15%;
+    width: 70%;
+    height: 90%;
+    margin: auto;
+    z-index: 10;
+  }
+  &.vue-swiper-prev,
+  &.vue-swiper-next {
+    opacity: .85;
+    width: 60%;
+    height: 80%;
+  }
+  &.vue-swiper-prev {
+    left: 5%;
+  }
+  &.vue-swiper-next {
+    left: 35%;
+  }
+}
