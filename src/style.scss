@@ -13,30 +13,47 @@ $time: 250ms;
   opacity: 0;
   width: 0;
   height: 0;
+  height: auto;
+  min-height: 50%;
+  max-height: 90%;
   left: 50%;
   z-index: 0;
+  overflow: auto;
   background: white;
-  border-radius: 1rem;
-  box-shadow: 0 0 3rem .25rem #D5E9F6;
+  border-radius: .5rem;
+  box-shadow: 0 0 1.5rem .5rem #D5E9F6;
   transition: all $time ease-in-out;
-  &.vue-swiper-active {
-    opacity: 1;
-    left: 15%;
-    width: 70%;
-    height: 90%;
-    margin: auto;
-    z-index: 10;
+  &.vue-swiper-active,
+  &.vue-swiper-prev,
+  &.vue-swiper-next {
+    width: 80%;
+  }
+  &.vue-swiper-hide {
+    display: none;
   }
   &.vue-swiper-prev,
   &.vue-swiper-next {
     opacity: .85;
-    width: 60%;
-    height: 80%;
+    transform: scale(0.75, 0.85);
+  }
+  &.vue-swiper-prev::before,
+  &.vue-swiper-next::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+  }
+  &.vue-swiper-active {
+    opacity: 1;
+    left: 10%;
+    margin: auto;
+    z-index: 10;
   }
   &.vue-swiper-prev {
-    left: 5%;
+    left: -7%;
   }
   &.vue-swiper-next {
-    left: 35%;
+    left: 27.5%;
   }
 }

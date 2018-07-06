@@ -3,13 +3,32 @@ Vue.component("vue-swiper", {
     return {
       curIndex: this.value, // 当前活动的页面
       pages: this.$slots.default || [],
-      startPoint: null // 滑动开始的点
+      startPoint: null, // 滑动开始的点
     };
   },
   props: {
     loop: {
       type: Boolean,
       default: false
+    },
+    // 如果你的 slot 是异步的，那把你的数据赋值给该 props
+    async: {
+      default: false
+    },
+    // 是否支持手指滑动
+    swipe: {
+      type: Boolean,
+      default: true
+    },
+    // 是否能左滑动
+    canGoLeft: {
+      type: Boolean,
+      default: true
+    },
+    // 是否能右滑动
+    canGoRight: {
+      type: Boolean,
+      default: true
     },
     // 指定当前显示的页
     value: {
@@ -65,18 +84,22 @@ Vue.component("vue-swiper", {
           classNameList["vue-swiper-next"] = true;
           break;
         default:
-          classNameList["vue-swiper-other"] = true;
+          classNameList["vue-swiper-hide"] = true;
       }
       return classNameList;
     },
     // 每页的点击事件
     onClick: function(index) {
+      if(this.preventClick){
+        this.preventClick = false; //
+        return;
+      }
       switch (index) {
         case this.prevIndex:
-          this.goto(-1);
+          this.prev();
           break;
         case this.nextIndex:
-          this.goto(+1);
+          this.next();
           break;
         case this.curIndex:
           break;
@@ -84,16 +107,13 @@ Vue.component("vue-swiper", {
           return;
       }
     },
-    // 步进
-    // +1 则是前进一页，-1 则是后退一页，+n、-n 同理
-    goto: function(step) {
-      var pagesLen = this.pages.length,
-        index = this.curIndex + Number(step);
+    // 跳转到指定位置
+    goto: function(index) {
+      var pagesLen = this.pages.length;
       if (this.loop) {
         // 循环
         index = (index + pagesLen) % pagesLen;
       }
-
       // 在范围内才继续跳转
       if (-1 < index && index < pagesLen) {
         this.curIndex = index;
@@ -102,12 +122,22 @@ Vue.component("vue-swiper", {
       }
     },
     // 跳转到上一项
-    prev: function() {
-      this.goto(-1);
+    // 默认跳转到上一项，如果有传参 n，则跳转到上 n 项
+    prev: function(n) {
+      n = n || 1;
+      if (this.canGoLeft) {
+        n = Math.abs(n); // 步数取正
+        this.goto(this.curIndex - n);
+      }
     },
     // 跳转到下一项
-    next: function() {
-      this.goto(+1);
+    // 默认跳转到上一项，如果有传参 n，则跳转到上 n 项
+    next: function(n) {
+      n = n || 1;
+      if (this.canGoRight) {
+        n = Math.abs(n); // 步数取正
+        this.goto(this.curIndex + n);
+      }
     },
     // 滑动事件
     onTouchstart: function(e) {
@@ -120,21 +150,32 @@ Vue.component("vue-swiper", {
     // 处理滑动结束事件
     onTouchend: function(e) {
       var touchPoint = e.changedTouches[0];
-      var touchEndX = touchPoint.clientX;
-      var touchEndY = touchPoint.clientY;
-      var deltaX = touchEndX - this.startPoint.x;
-      var deltaY = touchEndY - this.startPoint.y;
 
-      switch (true) {
-        case deltaX > this.deltaX: // 动作为向右滑
-          this.goto(-1);
-          break;
-        case deltaX < -this.deltaX: // 动作为向左滑
-          this.goto(+1);
-          break;
-        default:
-          break;
+      this.doSwipe({
+        x: touchPoint.clientX - this.startPoint.x,
+        y: touchPoint.clientY - this.startPoint.y
+      });
+    },
+    // 根据滑动位移，给予页面反馈
+    doSwipe: function(delta) {
+      if (this.swipe) {
+        switch (true) {
+          case delta.x > this.deltaX: // 动作为向右滑
+            this.prev();
+            break;
+          case delta.x < -this.deltaX: // 动作为向左滑
+            this.next();
+            break;
+          default:
+            break;
+        }
       }
+    }
+  },
+  watch: {
+    async: function() {
+      // 同步异步 slot 的状态
+      this.pages = this.$slots.default || [];
     }
   },
   // 渲染函数
@@ -160,6 +201,8 @@ Vue.component("vue-swiper", {
             class: this.getClassName(i),
             key: i,
             on: {
+              touchstart: this.onTouchstart,
+              touchend: this.onTouchend,
               click: this.onClick.bind(this, i)
             }
           },
@@ -172,10 +215,6 @@ Vue.component("vue-swiper", {
       {
         class: {
           "vue-swiper-outer": true
-        },
-        on: {
-          touchstart: this.onTouchstart,
-          touchend: this.onTouchend
         }
       },
       innerDom
