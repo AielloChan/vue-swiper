@@ -54,12 +54,12 @@ this.$refs.swiper.next(); // 让子组件切换到下一章卡片
 
 ## 运行
 
-只需要在本地安装 [Parcel](https://parceljs.org/)
+只需要在本地安装 [Vue CLI](https://cli.vuejs.org/)
 
 ```bash
-yarn global add parcel
-# 或者用 npm 安装
-npm i -g parcel
+npm install -g @vue/cli
+# OR
+yarn global add @vue/cli
 ```
 
 然后执行下面命令检出项目
@@ -67,11 +67,7 @@ npm i -g parcel
 ```bash
 git clone https://github.com/AielloChan/vue-swiper.git
 cd vue-swiper
-parcel serve src/index.html
+vue serve example/index.vue
 ```
 
 等构建完成后，打开浏览器输入 [localhost:1234](http://localhost:1234) 一切都搞定！
-
-## 作者
-
-[Aiello Chan](https://github.com/AielloChan/vue-swiper)
